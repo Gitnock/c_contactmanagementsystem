@@ -15,6 +15,8 @@ Milestone:  2
 #include "contacts.h"
 #include "string.h"
 
+#define MAXCONTACTS 5
+
 
 // This source file needs to "know about" the functions you prototyped
 //       in the contact helper header file.
@@ -66,7 +68,7 @@ int getInt(void) {
             printf("*** INVALID INTEGER *** <Please enter an integer>: ");
         }
     }
-return out;
+    return out;
 }
 
 
@@ -86,20 +88,27 @@ int getIntInRange(int min, int max) {
 int yes() {
     char nl = '\0';
     char yes = '\0';
-    while (nl != '\n') {
+    scanf("%c%c", &yes, &nl);
+    while (1) {
+        if (nl == '\n') {
+            if (yes == 'y' || yes == 'Y') {
+                return 1;
+            }
+            else if (yes == 'n' || yes == 'N') {
+                return 0;
+            }
+
+        }
+
+
+        printf("*** INVALID ENTRY *** <Only (Y)es or (N)o are acceptable>: ");
+        clearKeyboard();
         scanf("%c%c", &yes, &nl);
-        if (nl != '\n') {
-            clearKeyboard();
-            printf("*** INVALID ENTRY *** <Only (Y)es or (N)o are acceptable>: ");
-        }
-        else if (yes == 'y' || yes == 'Y') {
-            return 1;
-        }
-        else if (yes == 'n' || yes == 'N') {
-            return 0;
-        }
     }
 }
+
+
+
 
 
 // menu: Empty function definition goes here:
@@ -131,55 +140,58 @@ int menu(void)
     return menu;
 }
 
+void space(){
+    printf("\n");
+}
+
 
 // contactManagerSystem: Empty function definition goes here:
 void contactManagerSystem(void) {
-    int cFlag = 0;
-    int pick;
+    int flag = 0;
 
-    const struct Contact contact[] = { { { "Rick", {'\0'}, "Grimes" },{ 11, "Trailer Park", 0, "A7A 2J2", "King City" },{ "4161112222", "4162223333", "4163334444" } },
+    struct Contact contact[MAXCONTACTS] = { { { "Rick", {'\0'}, "Grimes" },{ 11, "Trailer Park", 0, "A7A 2J2", "King City" },{ "4161112222", "4162223333", "4163334444" } },
     {{ "Maggie", "R.", "Greene" },{ 55, "Hightop House", 0, "A9A 3K3", "Bolton" },{ "9051112222", "9052223333", "9053334444" } },
     {{ "Morgan", "A.", "Jones" },{ 77, "Cottage Lane", 0, "C7C 9Q9", "Peterborough" },{ "7051112222", "7052223333", "7053334444" } }
     ,{{ "Sasha", {'\0'}, "Williams" },{ 55, "Hightop House", 0, "A9A 3K3", "Bolton" },{ "9052223333", "9052223333", "9054445555" } }};
 
-    while (cFlag == 0) {
-        pick = menu();
-        switch (pick) {
+    while (flag == 0||flag >1) {
+
+        switch (menu()) {
         case 1:
             displayContactHeader();
-            displayContacts(contact,4);
-            displayContactFooter(4);
+            displayContacts(contact,MAXCONTACTS);
+            displayContactFooter(arraySize(contact,MAXCONTACTS));
             pause();
             break;
 
         case 2:
-            printf("\n<<< Feature 2 is unavailable >>>\n\n");
+            addContact(contact,MAXCONTACTS);
             pause();
             break;
 
         case 3:
-            printf("\n<<< Feature 3 is unavailable >>>\n\n");
+            updateContact(contact,MAXCONTACTS);
             pause();
             break;
 
         case 4:
-            printf("\n<<< Feature 4 is unavailable >>>\n\n");
+            deleteContact(contact,MAXCONTACTS);
             pause();
             break;
 
         case 5:
-            searchContacts(contact,4);
+            searchContacts(contact,MAXCONTACTS);
             pause();
             break;
 
         case 6:
-            printf("\n<<< Feature 5 is unavailable >>>\n\n");
+            sortContacts(contact,MAXCONTACTS);
             pause();
             break;
 
         case 0:
             printf("\nExit the program? (Y)es/(N)o: ");
-            cFlag = yes();
+            flag = yes();
             break;
 
         default:
@@ -187,7 +199,7 @@ void contactManagerSystem(void) {
         }
         printf("\n");
     }
-    printf("Contact Management System: terminated");
+    printf("Contact Management System: terminated\n");
 }
 
 void getTenDigitPhone(char phoneNum[]) {
@@ -238,7 +250,7 @@ int findContactIndex(const struct Contact contacts[], int size, const char cellN
 
 void displayContactHeader(void){
 
-    printf("+-----------------------------------------------------------------------------+\n|                              Contacts Listing                               |\n+-----------------------------------------------------------------------------+\n");
+    printf("\n+-----------------------------------------------------------------------------+\n|                              Contacts Listing                               |\n+-----------------------------------------------------------------------------+\n");
 
 
  }
@@ -251,7 +263,7 @@ void displayContactFooter(int count){
 void displayContact(const struct Contact *contact){
 
 
-    if(contact->name.middleInitial!='\0'){
+    if(contact->name.middleInitial[0]!='\0'){
         printf(" %s %s %s\n", contact->name.firstName, contact->name.middleInitial, contact->name.lastName);
     }
     else {
@@ -259,7 +271,7 @@ void displayContact(const struct Contact *contact){
     }
     printf("    C: %-10s   H: %-10s   B: %-10s\n", contact->numbers.cell, contact->numbers.home, contact->numbers.business);
     if (contact->address.apartmentNumber>0){
-        printf("       %d %s, %d, %s, %s\n", contact->address.streetNumber,contact->address.street,contact->address.apartmentNumber,contact->address.city,contact->address.postalCode);
+        printf("       %d %s, Apt# %d, %s, %s\n", contact->address.streetNumber,contact->address.street,contact->address.apartmentNumber,contact->address.city,contact->address.postalCode);
     }
     else{
         printf("       %d %s, %s, %s\n", contact->address.streetNumber,contact->address.street,contact->address.city,contact->address.postalCode);
@@ -271,22 +283,10 @@ void displayContact(const struct Contact *contact){
 void displayContacts(const struct Contact contact[],int size){
     int i;
     for(i = 0;i<size;i++){
-        if(contact[i].name.middleInitial!='\0'){
-            printf(" %s %s %s\n", contact[i].name.firstName, contact[i].name.middleInitial, contact[i].name.lastName);
-        }
-        else {
-            printf("%s %s\n", contact[i].name.firstName, contact[i].name.lastName);
-        }
-        printf("    C: %-10s   H: %-10s   B: %-10s\n", contact[i].numbers.cell, contact[i].numbers.home, contact[i].numbers.business);
 
-        if (contact[i].address.apartmentNumber>0){
-        printf("       %d %s, Apt# %d, %s, %s\n", contact[i].address.streetNumber,contact[i].address.street,contact[i].address.apartmentNumber,contact[i].address.city,contact[i].address.postalCode);
-        }
-
-        else{
-            printf("       %d %s, %s, %s\n", contact[i].address.streetNumber,contact[i].address.street,contact[i].address.city,contact[i].address.postalCode);
-        }
-
+            if(strlen(contact[i].numbers.cell) > 0){
+                displayContact(&contact[i]);
+            }
     }
 
 }
@@ -294,21 +294,135 @@ void displayContacts(const struct Contact contact[],int size){
 void searchContacts(const struct Contact contact[], int size){
     char phoneNum[] = "9051112222";
     int pos =0;
-    printf("\nEnter a 10-digit phone number: ");
+    printf("\nEnter the cell number for the contact: ");
     scanf("%10s", phoneNum);
     clearKeyboard();
     getTenDigitPhone(phoneNum);
     pos = findContactIndex(contact,size,phoneNum);
     if(pos>=0){
+        space();
         displayContact(&contact[pos]);
+        space();
     }
     else{
-        printf("*** Contact NOT FOUND ***\n");
+        printf("*** Contact NOT FOUND ***\n\n");
     }
 
 }
 
+void addContact(struct Contact contact[], int size){
+    int pos = 0;
+    if(arraySize(contact,size)>=size){
+        printf("\n*** ERROR: The contact list is full! ***\n\n");
+    }
+    else{
+        pos = emptySlot(contact,MAXCONTACTS);
+        space();
+        getContact(&contact[pos]);
+        printf("--- New contact added! ---\n\n");
+    }
+}
+
+void updateContact(struct Contact contact[], int size){
+    char num[11];
+    int pos=0;
+	space();
+    printf("Enter the cell number for the contact: ");
+    scanf("%10s",num);
+    clearKeyboard();
+    getTenDigitPhone(num);
+    if(findContactIndex(contact,size,num)!= -1){
+        printf("\nContact found:\n");
+        pos = findContactIndex(contact,size,num);
+        displayContact(&contact[pos]);
+        printf("\nDo you want to update the name? (y or n): ");
+        if (yes()) {
+            *contact[pos].name.middleInitial = '\0';
+            setName(&contact[pos].name);
+        }
+
+        printf("Do you want to update the address? (y or n): ");
+        if (yes()) {
+            setAddress(&contact[pos].address);
+        }
+        printf("Do you want to update the numbers? (y or n): ");
+        if (yes()) {
+            *contact[pos].numbers.business = '\0';
+			*contact[pos].numbers.home = '\0';
+            setNumbers(&contact[pos].numbers);
+        }
+        printf("--- Contact Updated! ---\n\n");
+        }
+    else
+        printf("*** Contact NOT FOUND ***\n\n");
+
+}
+
+void deleteContact(struct Contact contact[], int size){
+    char num[11];
+    int pos;
+    space();
+    printf("Enter the cell number for the contact: ");
+    scanf("%10s",num);
+    clearKeyboard();
+    getTenDigitPhone(num);
+    if(findContactIndex(contact,size,num)!= -1){
+        printf("\nContact found:\n");
+        pos = findContactIndex(contact,size,num);
+        displayContact(&contact[pos]);
+        printf("\nCONFIRM: Delete this contact? (y or n): ");
+        if (yes()) {
+            *contact[pos].numbers.cell = '\0';
+            *contact[pos].numbers.home = '\0';
+            *contact[pos].numbers.business = '\0';
+            printf("--- Contact deleted! ---\n");
+        }
+        space();
+        }
+    else
+        printf("*** Contact NOT FOUND ***\n\n");
+
+}
+
+void sortContacts(struct Contact contacts[], int size) {
+    int i, j;
+    for (i = size - 1; i > 0; i--) {
+        for (j = 0; j < i; j++) {
+            if (strcmp(contacts[j].numbers.cell, contacts[j + 1].numbers.cell) > 0) {
+                struct Contact temp = contacts[j];
+                (contacts[j] = contacts[j + 1]);
+                (contacts[j + 1] = temp);
+            }
+        }
+    }
 
 
+    space();
+    printf("--- Contacts sorted! ---\n");
+    space();
+}
+
+int arraySize(const struct Contact contact[],int max){
+    int i,size=0;
+    for(i=0;i<max;i++){
+        if(contact[i].numbers.cell[0]>'0'){
+            size++;
+        }
+
+    }
+    return size;
+}
+
+int emptySlot(const struct Contact contact[],int size){
+    int i;
+    for(i=0;i<size;i++){
+        if(!strlen(contact[i].numbers.cell)){
+            return i;
+        }
+
+    }
+    return 5;
+
+}
 
 

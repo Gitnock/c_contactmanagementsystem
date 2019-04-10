@@ -18,19 +18,17 @@ void setName(struct Name *name) {
 	clearB();
 	if (yes()) {
 		printf("Please enter the contact's middle initial(s): ");
-		scanf("%6[^\n]s", name->middleInitial);
+		scanf("%7[^\n]s", name->middleInitial);
 		clearB();
 	}
 
 	printf("Please enter the contact's last name: ");
 	scanf("%30[^\n]s", name->lastName);
-
+    clearKeyboard();
 }
 
 void setAddress(struct Address *address) {
-
 	printf("Please enter the contact's street number: ");
-	clearB();
 	address->streetNumber = getInt();
 	while(address->streetNumber <0){
         printf("*** INVALID STREET NUMBER *** <must be a positive number>: ");
@@ -52,30 +50,36 @@ void setAddress(struct Address *address) {
 
 	}
 	printf("Please enter the contact's postal code: ");
-	scanf("%[^\n]7s", address->postalCode);
-    clearB();
+	scanf("%7[^\n]s", address->postalCode);
+    clearKeyboard();
 	printf("Please enter the contact's city: ");
-	scanf("%[^\n]40s", address->city);
-
+	scanf("%40[^\n]s", address->city);
+    clearKeyboard();
 }
 
 void setNumbers(struct Numbers *numbers) {
-
-
     printf("Please enter the contact's cell phone number: ");
-    scanf("%10s", numbers->cell);
-
+    scanf("%10s",numbers->cell);
+    clearKeyboard();
+    getTenDigitPhone(numbers->cell);
 
 	printf("Do you want to enter a home phone number? (y or n): ");
 	if (yes()) {
 		printf("Please enter the contact's home phone number: ");
-		scanf("%10s", numbers->home);
+		scanf("%10s",numbers->home);
+        clearKeyboard();
+        getTenDigitPhone(numbers->home);
+
+
 	}
 
 	printf("Do you want to enter a business phone number? (y or n): ");
 	if (yes()) {
 		printf("Please enter the contact's business phone number: ");
-		scanf("%10s", numbers->business);
+		scanf("%10s",numbers->business);
+        clearKeyboard();
+        getTenDigitPhone(numbers->business);
+
 	}
 
 }

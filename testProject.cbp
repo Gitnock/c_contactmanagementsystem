@@ -31,6 +31,14 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="contactHelpers.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="contactHelpers.h" />
+		<Unit filename="contacts.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="contacts.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

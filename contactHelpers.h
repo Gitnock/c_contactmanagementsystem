@@ -65,7 +65,7 @@ int findContactIndex(const struct Contact contacts[], int size, const char cellN
 
 // displayContactHeader
 // put function prototype here:
-void displayContactHeder(void);
+void displayContactHeader(void);
 
 // displayContactFooter:
 // put function prototype here:
@@ -98,3 +98,21 @@ void deleteContact(struct Contact contact[], int size);
 // sortContacts:
 // put function prototype here:
 void sortContacts(struct Contact contact[], int size);
+
+
+// +----------------------------------+
+// | ====== Helper functions =======  |
+// +----------------------------------+
+
+//adds a space
+void space(void);
+
+//finds nonempty space in the contacts
+int arraySize(const struct Contact contact[],int max);
+
+//finds nonempty space in the contacts
+int emptySlot(const struct Contact contact[],int size);
+
+
+
+
